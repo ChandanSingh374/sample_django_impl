@@ -1,6 +1,8 @@
+from food_delivery.dtos import BuildBatchedTaskRouteResponseDto, BuildBatchedTaskRouteRequestDto
+from food_delivery.dtos import ResponseStatus
 from logging import getLogger, DEBUG
+import traceback
 
-from food_delivery.dtos import BuildBatchedTaskRouteRequestDto
 from food_delivery.services import BatchedTaskService
 
 
@@ -19,4 +21,20 @@ class BatchedTaskController:
             self,
             request_dto: BuildBatchedTaskRouteRequestDto
     ):
-        pass
+        try:
+            locations = self.batched_task_service.build_route(
+                batched_task_id=request_dto.batched_task_id
+            )
+
+            response = BuildBatchedTaskRouteResponseDto(
+                response_status=ResponseStatus.SUCCESS,
+                route_to_be_taken=locations
+            )
+
+        except Exception as e:
+            self.logger.debug(traceback.format_exc())
+            response = BuildBatchedTaskRouteResponseDto(
+                response_status=ResponseStatus.FAILURE
+            )
+
+        return response
